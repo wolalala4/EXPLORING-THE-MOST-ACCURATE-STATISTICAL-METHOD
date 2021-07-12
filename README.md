@@ -1,0 +1,2 @@
+# EXPLORING-THE-MOST-ACCURATE-STATISTICAL-METHOD
+In order to correctly diagnose cancer, tumors must be analyzed to determine if they’re malignant or benign so the appropriate treatment can be recommended. One potential way to differentiate between these two kinds of tumors is to image their cell nuclei. Since the nuclei of cancerous cells tend to be abnormally shaped, by quantifying their morphology the type of tumor can be classified based on the physical features of the nucleus.
