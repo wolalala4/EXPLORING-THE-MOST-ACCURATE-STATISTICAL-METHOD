@@ -1,0 +1,81 @@
+---
+title: "group project"
+author: "Chenghan Yue"
+date: "4/26/2020"
+output: word_document
+---
+
+```{r}
+set.seed(4052)
+## classification decisioin tree method
+dat = read.csv("C:/Users/yuech/Downloads/stat 4052/Prostate_Cancer.csv", header = T)
+library(tree)
+test1=ifelse(dat$diagnosis_result=="B","N","Y")
+dat=data.frame(dat ,test1)
+tree.dat = tree(dat$diagnosis_result~.-test1, data = dat)
+##summary
+summary(tree.dat)
+##Detailed model structure
+tree.dat
+##plot
+plot(tree.dat)
+text(tree.dat,pretty=5)
+##accuracy
+set.seed(4052)
+train = sample (2:nrow(dat), 50)
+dat.train=dat[train,]
+dat.test=dat[train, ]
+Diag.test=test1[train]
+tree.dat2 =tree(test1~.-diagnosis_result , dat.train)
+tree.pred1=predict(tree.dat2 ,dat.test ,type="class")
+table(tree.pred1 ,Diag.test)
+```
+
+
+```{r}
+set.seed(4052)
+##prune
+
+##prune test
+cv.dat =cv.tree(tree.dat ,FUN=prune.misclass )
+names(cv.dat)
+cv.dat
+##prune
+prune.dat =prune.misclass (tree.dat2 ,best=6)
+plot(prune.dat )
+text(prune.dat ,pretty =0)
+##accuracy
+tree.pred2=predict(prune.dat, dat.test , type="class")
+table(tree.pred2, Diag.test)
+
+```
+
+
+```{r}
+##Logistic Regression Classification
+library(caret)
+library(glmnet)
+dat2 = read.csv("C:/Users/yuech/Downloads/stat 4052/Prostate_Cancer.csv", header = T)
+##remove predictors with cor less than 0.3
+corVec=cor(as.numeric(dat$diagnosis_result),dat2[,2:ncol(dat2)])
+notCor=which(abs(corVec)<0.3)
+dat2=data.frame(diagnosis_result=dat2[,1],dat2[-c(1,notCor+1)])
+##remove predictors with cor larger than 0.85
+corMat=cor(dat2[,2:ncol(dat2)])
+highCor=findCorrelation(corMat, cutoff=0.85) 
+dat2=data.frame(diagnosis_result=dat2[,1],dat2[-c(1,highCor+1)])
+names(dat2)
+
+test2=ifelse(dat2$diagnosis_result=="B","N","Y")
+dat2=data.frame(dat2 ,test2)
+train2 = sample (2:nrow(dat2), 50)
+dattrain2=dat2[train2,]
+dattest2=dat2[-train2,]
+Diag.test2=test2[-train2]
+fit_glm = glm(test2~.-diagnosis_result,dattrain2,family=binomial)
+summary(fit_glm)
+glm.probs=predict(fit_glm,dattest2, type="response")
+glm.pred=rep("N",50)
+glm.pred[glm.probs >.5]=" Y"
+table(glm.pred ,Diag.test2)
+```
